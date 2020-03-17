@@ -23,3 +23,11 @@
   color: rgba(0, 0, 0, 0.45);
   font-weight: bold;
 }
+
+.homeForm form {
+  margin-top: 3rem;
+}
+
+.homeForm form .ant-form-item-label {
+  text-align: left !important;
+}
