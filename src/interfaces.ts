@@ -1,8 +1,7 @@
 export interface Car {
   marca: string;
   modelo: string;
-  year: number[];
-  rendimientoLitro: number;
+  year: { year: number; rendimientoLitro: number }[];
 }
 
 export interface Marca {

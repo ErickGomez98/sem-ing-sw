@@ -16,7 +16,7 @@ function App() {
         atActive={{ opacity: 1 }}
         className="switch-wrapper"
       >
-        <Route exact path="/results" component={Results} />
+        <Route path="/results/:id" component={Results} />
         <Route exact path="/statistics" component={Statistics} />
         <Route exact path="/" component={Home} />
         <Redirect to="/" />

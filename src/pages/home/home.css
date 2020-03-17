@@ -15,10 +15,6 @@
   color: #43425d !important;
 }
 
-.homeForm .ant-col:first-child {
-  text-align: center;
-}
-
 .homeForm .secondaryText {
   color: rgba(0, 0, 0, 0.45);
   font-weight: bold;
