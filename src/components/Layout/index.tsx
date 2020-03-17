@@ -1,12 +1,16 @@
 import React from "react";
-
-function Layout() {
-  return (
-    <div>
-      <div>layout left img</div>
-      <div>layour right</div>
-    </div>
-  );
+import { Row, Col } from "antd";
+interface Props {
+  leftComponent: React.ReactNode;
+  rightComponent: React.ReactNode;
 }
+const Layout: React.FC<Props> = ({ leftComponent, rightComponent }) => {
+  return (
+    <Row style={{ height: "100vh" }}>
+      <Col md={12}>{leftComponent}</Col>
+      <Col span={12}>{rightComponent}</Col>
+    </Row>
+  );
+};
 
 export default Layout;

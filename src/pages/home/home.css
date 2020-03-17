@@ -1,0 +1,25 @@
+.homeLeftSideBackground {
+  background-color: #ccc;
+  background-image: url("../../assets/img/homeBackground.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  height: 100%;
+}
+
+.homeForm {
+  height: 100%;
+}
+
+.homeForm h1 {
+  color: #43425d !important;
+}
+
+.homeForm .ant-col:first-child {
+  text-align: center;
+}
+
+.homeForm .secondaryText {
+  color: rgba(0, 0, 0, 0.45);
+  font-weight: bold;
+}
