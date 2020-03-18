@@ -29,14 +29,14 @@ const generateCarsData = () => {
   const data = availableCarsData;
   const parsedData: Option[] = [];
 
-  data.map(marca => {
+  data.forEach(marca => {
     const item: Option = {
       value: marca.marca,
       label: marca.marca,
       children: []
     };
     if (marca.modelos) {
-      marca.modelos.map(modelo => {
+      marca.modelos.forEach(modelo => {
         const mItem: Option = {
           value: modelo.modelo,
           label: modelo.modelo,
@@ -44,7 +44,7 @@ const generateCarsData = () => {
         };
 
         if (modelo.year) {
-          modelo.year.map(y => {
+          modelo.year.forEach(y => {
             if (mItem.children)
               mItem.children.push({
                 value: y.year.toString() + "," + y.rendimientoLitro.toString(),
@@ -58,7 +58,6 @@ const generateCarsData = () => {
     parsedData.push(item);
   });
 
-  console.log(parsedData);
   return parsedData;
 };
 
@@ -96,6 +95,10 @@ const HomeForm: React.FC<Props> = () => {
       return <span key={option.value}>{label} / </span>;
     });
 
+  /**
+   * On Form Validation success
+   * @param values
+   */
   const onFinish = (values: any) => {
     setFormLoadinge(true);
     setTimeout(() => {
@@ -103,6 +106,10 @@ const HomeForm: React.FC<Props> = () => {
     }, 2500);
   };
 
+  /**
+   * On Form Validation error
+   * @param errorInfo
+   */
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
   };
