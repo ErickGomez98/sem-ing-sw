@@ -3,8 +3,7 @@ import Layout from "../../components/Layout";
 import { useParams } from "react-router-dom";
 import ReactMapboxGl, { Layer, Feature } from "react-mapbox-gl";
 const Map = ReactMapboxGl({
-  accessToken:
-    "pk.eyJ1IjoiZXJpY2tnb21lejk4IiwiYSI6ImNrMmk3a2x1eDBmdDczY21ydHExeXI5OWUifQ.n5YphkJrn7fAs3EBIazyDA"
+  accessToken: process.env.REACT_APP_MAPBOX_API as string | "noApi"
 });
 
 const Results: React.FC<{}> = () => {
