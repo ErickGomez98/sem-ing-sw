@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import { useParams } from "react-router-dom";
-import RightSideLoader from "./rightSideLoader";
-import LeftSideLoader from "./leftSideLoader";
-// import Map from "../../components/Map";
 import ReactMapboxGl, { Layer, Feature } from "react-mapbox-gl";
 const Map = ReactMapboxGl({
   accessToken:
