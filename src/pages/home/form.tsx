@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from "react";
 import {
-  Row,
-  Col,
-  Typography,
-  Form,
-  Input,
+  AutoComplete,
+  Button,
   Cascader,
   Checkbox,
-  Button
+  Col,
+  Form,
+  Input,
+  Row,
+  Typography
 } from "antd";
-import { availableCarsData } from "../../mockingData";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
-
+import { MapboxSearchFeature } from "../../interfaces";
+import { availableCarsData } from "../../mockingData";
+const accessToken = process.env.REACT_APP_MAPBOX_API as string | "noApi";
 const { Title } = Typography;
 
 interface Option {
@@ -61,20 +64,40 @@ const generateCarsData = () => {
   return parsedData;
 };
 
+/**
+ * Agrega un debounce para los input de busqueda
+ */
+function debounce(func: any, wait: any) {
+  let timeout: any;
+  return function(...args: any) {
+    //@ts-ignore
+    const context = this;
+    if (timeout) clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      timeout = null;
+      func.apply(context, args);
+    }, wait);
+  };
+}
+
 interface Props {}
 const HomeForm: React.FC<Props> = () => {
-  const [cascaderOptions, setCascaderOptions] = useState();
-  const [cascaderValue, setCascaderValue] = useState();
+  const [cascaderOptions, setCascaderOptions] = useState<Option[]>();
+  const [cascaderValue, setCascaderValue] = useState<string[]>();
   const [formLoading, setFormLoadinge] = useState<boolean>(false);
   const [redirectToResults, setRedirectToResults] = useState<boolean>(false);
+  const [startingPointOptions, setStartingPointOptions] = useState<any>();
+  const [destinationOptions, setDestinationsOptions] = useState<any>();
+  const [searchingStartingPoint, setSearchingStartingPoint] = useState<boolean>(
+    false
+  );
+  const [searchingDestination, setSearchingDestination] = useState<boolean>(
+    false
+  );
 
   useEffect(() => {
     setCascaderOptions(generateCarsData());
   }, []);
-
-  useEffect(() => {
-    console.log(cascaderValue);
-  }, [cascaderValue]);
 
   /**
    * Función para renderizar el contenido de la opción seleccionada del cascader
@@ -99,7 +122,7 @@ const HomeForm: React.FC<Props> = () => {
    * On Form Validation success
    * @param values
    */
-  const onFinish = (values: any) => {
+  const onFinish = async (values: any) => {
     setFormLoadinge(true);
     setTimeout(() => {
       setRedirectToResults(true);
@@ -112,6 +135,95 @@ const HomeForm: React.FC<Props> = () => {
    */
   const onFinishFailed = (errorInfo: any) => {
     console.log("Failed:", errorInfo);
+  };
+
+  /**
+   * Input de búsqueda de punto de partida
+   * @param value
+   */
+  const handleStartingPointChange = async (value: string) => {
+    if (value.length > 1) {
+      setSearchingStartingPoint(true);
+      const features = await searchFromAPI(value);
+      setSearchingStartingPoint(false);
+      setStartingPointOptions(
+        features.map(f => ({ center: f.center, ...renderItem(f.placeName) }))
+      );
+      console.log("features on starting point", features);
+    } else {
+      setStartingPointOptions([]);
+    }
+  };
+
+  const debounceOnChangeStartingPoint = React.useCallback(
+    debounce(handleStartingPointChange, 400),
+    []
+  );
+
+  /**
+   * Consulta una dirección en la API y regresa todas las coincidencias
+   * @param value
+   */
+  const searchFromAPI = async (
+    value: string
+  ): Promise<MapboxSearchFeature[]> => {
+    try {
+      const { data } = await axios.get(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          value
+        )}.json?access_token=${accessToken}`
+      );
+      return data.features.map((f: any) => ({
+        text: f.text,
+        placeName: f.place_name,
+        center: f.center
+      }));
+    } catch (err) {
+      return [];
+    }
+  };
+
+  /**
+   * Consultar API para traer
+   * @param value
+   */
+  const handleDestinationChange = async (value: string) => {
+    if (value.length > 1) {
+      setSearchingDestination(true);
+      const features = await searchFromAPI(value);
+      setSearchingDestination(false);
+      setDestinationsOptions(
+        features.map(f => ({ center: f.center, ...renderItem(f.placeName) }))
+      );
+      console.log("features on destination", features);
+    } else {
+      setDestinationsOptions([]);
+    }
+  };
+
+  const debounceOnChangeDestination = React.useCallback(
+    debounce(handleDestinationChange, 400),
+    []
+  );
+
+  /**
+   *  Renderiza un resultado de una dirección
+   * @param address {string}
+   */
+  const renderItem = (title: string) => {
+    return {
+      value: title,
+      label: (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-start"
+          }}
+        >
+          {title}
+        </div>
+      )
+    };
   };
 
   if (redirectToResults) return <Redirect to="/results/1" />;
@@ -139,14 +251,36 @@ const HomeForm: React.FC<Props> = () => {
                 { required: true, message: "Ingresa tu punto de partida" }
               ]}
             >
-              <Input />
+              <AutoComplete
+                options={startingPointOptions}
+                onSelect={(value: any, option: any) =>
+                  console.log("val", value, "op", option)
+                }
+              >
+                <Input.Search
+                  loading={searchingStartingPoint}
+                  onSearch={handleStartingPointChange}
+                  onChange={e => debounceOnChangeStartingPoint(e.target.value)}
+                />
+              </AutoComplete>
             </Form.Item>
             <Form.Item
               label="Destino"
               name="destination"
               rules={[{ required: true, message: "Ingresa tu destino" }]}
             >
-              <Input />
+              <AutoComplete
+                options={destinationOptions}
+                onSelect={(value: any, option: any) =>
+                  console.log("val", value, "op", option)
+                }
+              >
+                <Input.Search
+                  loading={searchingDestination}
+                  onSearch={handleDestinationChange}
+                  onChange={e => debounceOnChangeDestination(e.target.value)}
+                />
+              </AutoComplete>
             </Form.Item>
             <Form.Item
               label="Vehículo a utilizar"
