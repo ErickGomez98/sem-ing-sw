@@ -12,7 +12,7 @@ import {
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
-import { MapboxSearchFeature } from "../../interfaces";
+import { MapboxSearchFeature, DataToBackend, Center } from "../../interfaces";
 import { availableCarsData } from "../../mockingData";
 const accessToken = process.env.REACT_APP_MAPBOX_API as string | "noApi";
 const { Title } = Typography;
@@ -83,9 +83,9 @@ function debounce(func: any, wait: any) {
 interface Props {}
 const HomeForm: React.FC<Props> = () => {
   const [cascaderOptions, setCascaderOptions] = useState<Option[]>();
-  const [cascaderValue, setCascaderValue] = useState<string[]>();
+  const [_, setCascaderValue] = useState<string[]>();
   const [formLoading, setFormLoadinge] = useState<boolean>(false);
-  const [redirectToResults, setRedirectToResults] = useState<boolean>(false);
+  // const [redirectToResults, setRedirectToResults] = useState<boolean>(false);
   const [startingPointOptions, setStartingPointOptions] = useState<any>();
   const [destinationOptions, setDestinationsOptions] = useState<any>();
   const [searchingStartingPoint, setSearchingStartingPoint] = useState<boolean>(
@@ -94,6 +94,9 @@ const HomeForm: React.FC<Props> = () => {
   const [searchingDestination, setSearchingDestination] = useState<boolean>(
     false
   );
+  const [startingPoint, setStartingPoint] = useState<[number, number]>([0, 0]);
+  const [destination, setDestination] = useState<[number, number]>([0, 0]);
+  const [routesResult, setRoutesResult] = useState<any>(false);
 
   useEffect(() => {
     setCascaderOptions(generateCarsData());
@@ -124,9 +127,60 @@ const HomeForm: React.FC<Props> = () => {
    */
   const onFinish = async (values: any) => {
     setFormLoadinge(true);
-    setTimeout(() => {
-      setRedirectToResults(true);
-    }, 2500);
+    const data: DataToBackend = {
+      destination: {
+        placeName: values.destination,
+        center: destination
+      },
+      startingPoint: {
+        placeName: values.startingPoint,
+        center: startingPoint
+      },
+      car: {
+        marca: values.carToUse[0],
+        modelo: values.carToUse[1],
+        year: {
+          year: values.carToUse[2].split(",")[0] as number,
+          rendimientoLitro: values.carToUse[2].split(",")[1] as number
+        }
+      },
+      statistics: values.statistics
+    };
+    generarRutaBackend(data);
+  };
+
+  /**
+   * Función en la cual se consultará al backend para
+   * que genere la mejor ruta.
+   */
+  const generarRutaBackend = async (values: DataToBackend) => {
+    // Por el momento solo se usará la API para consultar las rutas y esas son
+    // las que se usarán, cuando se implemente el backend entonces en el back se
+    // hará la consulta a la API y se implementará el algoritmo.
+    const routes = await tmpGetRoutesFromAPI([
+      values.startingPoint.center,
+      values.destination.center
+    ]);
+    setRoutesResult(routes);
+  };
+
+  /**
+   * Función temporal para "simular" lo que haría el back al momento de regresar rutas.
+   * @param coordinates
+   */
+  const tmpGetRoutesFromAPI = async (
+    coordinates: [Center, Center]
+  ): Promise<[]> => {
+    try {
+      const { data } = await axios.get(
+        `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${encodeURIComponent(
+          coordinates.join(";")
+        )}?alternatives=true&geometries=geojson&language=es&steps=true&access_token=${accessToken}`
+      );
+      return data.routes ? data.routes : [];
+    } catch (err) {
+      return [];
+    }
   };
 
   /**
@@ -226,7 +280,15 @@ const HomeForm: React.FC<Props> = () => {
     };
   };
 
-  if (redirectToResults) return <Redirect to="/results/1" />;
+  if (routesResult)
+    return (
+      <Redirect
+        to={{
+          pathname: "/results/1",
+          state: { routes: routesResult }
+        }}
+      />
+    );
 
   return (
     <>
@@ -254,7 +316,7 @@ const HomeForm: React.FC<Props> = () => {
               <AutoComplete
                 options={startingPointOptions}
                 onSelect={(value: any, option: any) =>
-                  console.log("val", value, "op", option)
+                  setStartingPoint(option.center)
                 }
               >
                 <Input.Search
@@ -272,7 +334,7 @@ const HomeForm: React.FC<Props> = () => {
               <AutoComplete
                 options={destinationOptions}
                 onSelect={(value: any, option: any) =>
-                  console.log("val", value, "op", option)
+                  setDestination(option.center)
                 }
               >
                 <Input.Search

@@ -2,25 +2,17 @@ import React from "react";
 import Layout from "../../components/Layout";
 import "./home.css";
 import HomeForm from "./form";
-import ReactMapboxGl, { Layer, MapContext } from "react-mapbox-gl";
+import ReactMapboxGl, { MapContext } from "react-mapbox-gl";
 const Map = ReactMapboxGl({
   accessToken: process.env.REACT_APP_MAPBOX_API as string | "noApi"
 });
-
-function rotateCamera(timestamp: number, map: any) {
-  // clamp the rotation between 0 -360 degrees
-  // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
-  map.rotateTo((timestamp / 100) % 360, { duration: 0 });
-  // Request the next frame of the animation.
-  //@ts-ignore
-  requestAnimationFrame(rotateCamera);
-}
 
 const Home: React.FC<{}> = () => {
   return (
     <Layout
       leftComponent={
         <Map
+          // eslint-disable-next-line
           style="mapbox://styles/mapbox/streets-v11"
           zoom={[16.3]}
           pitch={[45]}
