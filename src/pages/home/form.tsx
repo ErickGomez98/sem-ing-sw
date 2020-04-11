@@ -7,7 +7,7 @@ import {
   Form,
   Input,
   Row,
-  Typography
+  Typography,
 } from "antd";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -32,26 +32,26 @@ const generateCarsData = () => {
   const data = availableCarsData;
   const parsedData: Option[] = [];
 
-  data.forEach(marca => {
+  data.forEach((marca) => {
     const item: Option = {
       value: marca.marca,
       label: marca.marca,
-      children: []
+      children: [],
     };
     if (marca.modelos) {
-      marca.modelos.forEach(modelo => {
+      marca.modelos.forEach((modelo) => {
         const mItem: Option = {
           value: modelo.modelo,
           label: modelo.modelo,
-          children: []
+          children: [],
         };
 
         if (modelo.year) {
-          modelo.year.forEach(y => {
+          modelo.year.forEach((y) => {
             if (mItem.children)
               mItem.children.push({
                 value: y.year.toString() + "," + y.rendimientoLitro.toString(),
-                label: y.year.toString()
+                label: y.year.toString(),
               });
           });
         }
@@ -69,7 +69,7 @@ const generateCarsData = () => {
  */
 function debounce(func: any, wait: any) {
   let timeout: any;
-  return function(...args: any) {
+  return function (...args: any) {
     //@ts-ignore
     const context = this;
     if (timeout) clearTimeout(timeout);
@@ -97,6 +97,7 @@ const HomeForm: React.FC<Props> = () => {
   const [startingPoint, setStartingPoint] = useState<[number, number]>([0, 0]);
   const [destination, setDestination] = useState<[number, number]>([0, 0]);
   const [routesResult, setRoutesResult] = useState<any>(false);
+  const [routeInfo, setRouteInfo] = useState<DataToBackend | null>(null);
 
   useEffect(() => {
     setCascaderOptions(generateCarsData());
@@ -130,23 +131,24 @@ const HomeForm: React.FC<Props> = () => {
     const data: DataToBackend = {
       destination: {
         placeName: values.destination,
-        center: destination
+        center: destination,
       },
       startingPoint: {
         placeName: values.startingPoint,
-        center: startingPoint
+        center: startingPoint,
       },
       car: {
         marca: values.carToUse[0],
         modelo: values.carToUse[1],
         year: {
           year: values.carToUse[2].split(",")[0] as number,
-          rendimientoLitro: values.carToUse[2].split(",")[1] as number
-        }
+          rendimientoLitro: values.carToUse[2].split(",")[1] as number,
+        },
       },
-      statistics: values.statistics
+      statistics: values.statistics,
     };
     generarRutaBackend(data);
+    setRouteInfo(data);
   };
 
   /**
@@ -159,7 +161,7 @@ const HomeForm: React.FC<Props> = () => {
     // hará la consulta a la API y se implementará el algoritmo.
     const routes = await tmpGetRoutesFromAPI([
       values.startingPoint.center,
-      values.destination.center
+      values.destination.center,
     ]);
     setRoutesResult(routes);
   };
@@ -201,7 +203,7 @@ const HomeForm: React.FC<Props> = () => {
       const features = await searchFromAPI(value);
       setSearchingStartingPoint(false);
       setStartingPointOptions(
-        features.map(f => ({ center: f.center, ...renderItem(f.placeName) }))
+        features.map((f) => ({ center: f.center, ...renderItem(f.placeName) }))
       );
       console.log("features on starting point", features);
     } else {
@@ -230,7 +232,7 @@ const HomeForm: React.FC<Props> = () => {
       return data.features.map((f: any) => ({
         text: f.text,
         placeName: f.place_name,
-        center: f.center
+        center: f.center,
       }));
     } catch (err) {
       return [];
@@ -247,7 +249,7 @@ const HomeForm: React.FC<Props> = () => {
       const features = await searchFromAPI(value);
       setSearchingDestination(false);
       setDestinationsOptions(
-        features.map(f => ({ center: f.center, ...renderItem(f.placeName) }))
+        features.map((f) => ({ center: f.center, ...renderItem(f.placeName) }))
       );
       console.log("features on destination", features);
     } else {
@@ -271,12 +273,12 @@ const HomeForm: React.FC<Props> = () => {
         <div
           style={{
             display: "flex",
-            justifyContent: "flex-start"
+            justifyContent: "flex-start",
           }}
         >
           {title}
         </div>
-      )
+      ),
     };
   };
 
@@ -285,7 +287,7 @@ const HomeForm: React.FC<Props> = () => {
       <Redirect
         to={{
           pathname: "/results/1",
-          state: { routes: routesResult }
+          state: { routes: routesResult, routeInfo },
         }}
       />
     );
@@ -310,7 +312,7 @@ const HomeForm: React.FC<Props> = () => {
               label="Punto de Partida"
               name="startingPoint"
               rules={[
-                { required: true, message: "Ingresa tu punto de partida" }
+                { required: true, message: "Ingresa tu punto de partida" },
               ]}
             >
               <AutoComplete
@@ -322,7 +324,9 @@ const HomeForm: React.FC<Props> = () => {
                 <Input.Search
                   loading={searchingStartingPoint}
                   onSearch={handleStartingPointChange}
-                  onChange={e => debounceOnChangeStartingPoint(e.target.value)}
+                  onChange={(e) =>
+                    debounceOnChangeStartingPoint(e.target.value)
+                  }
                 />
               </AutoComplete>
             </Form.Item>
@@ -340,7 +344,7 @@ const HomeForm: React.FC<Props> = () => {
                 <Input.Search
                   loading={searchingDestination}
                   onSearch={handleDestinationChange}
-                  onChange={e => debounceOnChangeDestination(e.target.value)}
+                  onChange={(e) => debounceOnChangeDestination(e.target.value)}
                 />
               </AutoComplete>
             </Form.Item>
@@ -348,12 +352,15 @@ const HomeForm: React.FC<Props> = () => {
               label="Vehículo a utilizar"
               name="carToUse"
               rules={[
-                { required: true, message: "Selecciona el vehículo a utilizar" }
+                {
+                  required: true,
+                  message: "Selecciona el vehículo a utilizar",
+                },
               ]}
             >
               <Cascader
                 options={cascaderOptions}
-                onChange={value => setCascaderValue(value)}
+                onChange={(value) => setCascaderValue(value)}
                 placeholder="Selecciona el vehículo a utilizar"
                 displayRender={displayRender}
               />

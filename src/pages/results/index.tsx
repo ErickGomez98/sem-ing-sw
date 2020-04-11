@@ -1,20 +1,30 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import { useParams, Redirect } from "react-router-dom";
-import ReactMapboxGl, { GeoJSONLayer } from "react-mapbox-gl";
+import ReactMapboxGl, {
+  GeoJSONLayer,
+  Layer,
+  Feature,
+  Image,
+} from "react-mapbox-gl";
 import { Center } from "../../interfaces";
 import { Row, Col } from "antd";
 import Accordion from "../../components/Accordion";
 import MapRouteItem, { Step } from "../../components/Accordion/MapRoute";
 const Map = ReactMapboxGl({
-  accessToken: process.env.REACT_APP_MAPBOX_API as string | "noApi"
+  accessToken: process.env.REACT_APP_MAPBOX_API as string | "noApi",
 });
 
-const Results: React.FC<{ location: any }> = props => {
+export type IRouteColor = "red" | "green" | "blue";
+
+const Results: React.FC<{ location: any }> = (props) => {
   const [dataLoaded, setDataLoaded] = useState<boolean>(false);
   const [redirectToHome, setRedirectToHome] = useState<boolean>(false);
   const [routes, setRoutes] = useState<any>();
   const [selectedRoute, setSelectedRoute] = useState<any>();
+  const [selectedRouteColor, setSelectedRouteColor] = useState<IRouteColor>(
+    "green"
+  );
   const [currentFitBounds, setCurrentFitBounds] = useState<[Center, Center]>();
   const [maxZoom, setMaxZoom] = useState<number>(20);
 
@@ -36,11 +46,12 @@ const Results: React.FC<{ location: any }> = props => {
       const currentRoute = props.location.state.routes[0];
       setRoutes(props.location.state.routes);
       setSelectedRoute(currentRoute);
+      setSelectedRouteColor("green");
       setDataLoaded(true);
       setCurrentFitBounds([
         [
           currentRoute.geometry.coordinates[0][0],
-          currentRoute.geometry.coordinates[0][1]
+          currentRoute.geometry.coordinates[0][1],
         ],
         [
           currentRoute.geometry.coordinates[
@@ -48,10 +59,12 @@ const Results: React.FC<{ location: any }> = props => {
           ][0],
           currentRoute.geometry.coordinates[
             currentRoute.geometry.coordinates.length - 1
-          ][1]
-        ]
+          ][1],
+        ],
       ]);
       console.log(props.location.state.routes[0]);
+
+      console.log("roueinfo", props.location.state.routeInfo);
     }
   }, []);
 
@@ -62,10 +75,17 @@ const Results: React.FC<{ location: any }> = props => {
   const updateSelectedRoute = (key: number) => {
     if (!isNaN(key)) {
       setSelectedRoute(routes[key]);
+      if (key === 0) {
+        setSelectedRouteColor("green");
+      } else if (key === routes.length - 1) {
+        setSelectedRouteColor("red");
+      } else {
+        setSelectedRouteColor("blue");
+      }
       setCurrentFitBounds([
         [
           selectedRoute.geometry.coordinates[0][0],
-          selectedRoute.geometry.coordinates[0][1]
+          selectedRoute.geometry.coordinates[0][1],
         ],
         [
           selectedRoute.geometry.coordinates[
@@ -73,8 +93,8 @@ const Results: React.FC<{ location: any }> = props => {
           ][0],
           selectedRoute.geometry.coordinates[
             selectedRoute.geometry.coordinates.length - 1
-          ][1]
-        ]
+          ][1],
+        ],
       ]);
     }
   };
@@ -97,7 +117,7 @@ const Results: React.FC<{ location: any }> = props => {
     setCurrentFitBounds([
       [
         selectedRoute.geometry.coordinates[0][0],
-        selectedRoute.geometry.coordinates[0][1]
+        selectedRoute.geometry.coordinates[0][1],
       ],
       [
         selectedRoute.geometry.coordinates[
@@ -105,8 +125,8 @@ const Results: React.FC<{ location: any }> = props => {
         ][0],
         selectedRoute.geometry.coordinates[
           selectedRoute.geometry.coordinates.length - 1
-        ][1]
-      ]
+        ][1],
+      ],
     ]);
     setMaxZoom(20);
   };
@@ -124,12 +144,13 @@ const Results: React.FC<{ location: any }> = props => {
         type: step.maneuver.type,
         modifier: step.maneuver.modifier,
         instruction: step.maneuver.instruction,
-        location: step.maneuver.location
+        location: step.maneuver.location,
       };
     });
 
     arr.map((i: any) => {
-      if (!filtered.find((j: any) => j.name === i.name)) filtered.push(i);
+      if (!filtered.find((j: any) => j.instruction === i.instruction))
+        filtered.push(i);
     });
 
     return filtered;
@@ -146,45 +167,82 @@ const Results: React.FC<{ location: any }> = props => {
           style="mapbox://styles/mapbox/streets-v9"
           containerStyle={{
             height: "100vh",
-            width: "100%"
+            width: "100%",
           }}
           fitBounds={currentFitBounds}
           fitBoundsOptions={{
-            easing: t =>
+            easing: (t) =>
               t < 0.5 ? 8 * t * t * t * t : 1 - 8 * --t * t * t * t,
             padding: 50,
-            maxZoom
+            maxZoom,
           }}
         >
           <GeoJSONLayer
             data={selectedRoute.geometry}
             linePaint={{
-              "line-color": "red",
+              "line-color": selectedRouteColor,
               "line-width": 5,
               "line-blur": 1,
-              "line-opacity": 0.7
+              "line-opacity": 0.7,
             }}
             lineLayout={{
-              "line-cap": "round"
+              "line-cap": "round",
             }}
           />
+          <Image
+            id={"departure-icon"}
+            url={
+              "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Car_with_Driver-Silhouette.svg/1200px-Car_with_Driver-Silhouette.svg.png"
+            }
+          />
+          <Image
+            id={"arrival-icon"}
+            url={"https://cdn.onlinewebfonts.com/svg/img_513606.png"}
+          />
+          <Layer
+            type="symbol"
+            layout={{ "icon-image": "departure-icon", "icon-size": 0.02 }}
+          >
+            <Feature
+              coordinates={[
+                selectedRoute.geometry.coordinates[0][0],
+                selectedRoute.geometry.coordinates[0][1],
+              ]}
+            />
+          </Layer>
+          <Layer
+            type="symbol"
+            layout={{ "icon-image": "arrival-icon", "icon-size": 0.02 }}
+          >
+            <Feature
+              coordinates={[
+                selectedRoute.geometry.coordinates[
+                  selectedRoute.geometry.coordinates.length - 1
+                ][0],
+                selectedRoute.geometry.coordinates[
+                  selectedRoute.geometry.coordinates.length - 1
+                ][1],
+              ]}
+            />
+          </Layer>
         </Map>
       }
       rightComponent={
         <Row justify="center">
+          <Col span={22}></Col>
           <Col span={22}>
             <Accordion
-              onClick={key => updateSelectedRoute(+key)}
+              onClick={(key) => updateSelectedRoute(+key)}
               panels={routes.map((route: any, v: number) => {
                 return {
                   title: `Alternativa ${v + 1}`,
                   content: (
                     <MapRouteItem
-                      changeOnHover={l => updateHoverStep(l)}
+                      changeOnHover={(l) => updateHoverStep(l)}
                       resetOnLeave={resetHoverStep}
                       steps={getSteps(route)}
                     />
-                  )
+                  ),
                 };
               })}
             />
