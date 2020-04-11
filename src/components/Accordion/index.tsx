@@ -9,9 +9,9 @@ interface Props {
   }[];
   onClick: (key: string | string[]) => void;
 }
-const Accordion: React.FC<Props> = props => {
+const Accordion: React.FC<Props> = (props) => {
   return (
-    <Collapse accordion onChange={props.onClick}>
+    <Collapse defaultActiveKey={["0"]} accordion onChange={props.onClick}>
       {props.panels.map((p, v) => (
         <Panel key={v} header={p.title}>
           {p.content}

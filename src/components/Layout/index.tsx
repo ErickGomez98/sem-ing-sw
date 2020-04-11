@@ -8,7 +8,7 @@ const Layout: React.FC<Props> = ({ leftComponent, rightComponent }) => {
   return (
     <Row style={{ height: "100vh" }}>
       <Col md={12}>{leftComponent}</Col>
-      <Col xs={24} md={12}>
+      <Col xs={24} md={12} style={{ overflowY: "auto", height: "100vh" }}>
         {rightComponent}
       </Col>
     </Row>

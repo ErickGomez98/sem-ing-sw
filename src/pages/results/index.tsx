@@ -7,26 +7,51 @@ import ReactMapboxGl, {
   Feature,
   Image,
 } from "react-mapbox-gl";
-import { Center } from "../../interfaces";
-import { Row, Col } from "antd";
+import { Center, DataToBackend } from "../../interfaces";
+import { Row, Col, Statistic, Typography, Divider } from "antd";
 import Accordion from "../../components/Accordion";
 import MapRouteItem, { Step } from "../../components/Accordion/MapRoute";
 const Map = ReactMapboxGl({
   accessToken: process.env.REACT_APP_MAPBOX_API as string | "noApi",
 });
 
-export type IRouteColor = "red" | "green" | "blue";
+const { Title, Text } = Typography;
+
+export enum ERouteColor {
+  GREEN = "#52c41a",
+  BLUE = "#1890ff",
+  RED = "#ff4d4f",
+}
 
 const Results: React.FC<{ location: any }> = (props) => {
   const [dataLoaded, setDataLoaded] = useState<boolean>(false);
   const [redirectToHome, setRedirectToHome] = useState<boolean>(false);
   const [routes, setRoutes] = useState<any>();
   const [selectedRoute, setSelectedRoute] = useState<any>();
-  const [selectedRouteColor, setSelectedRouteColor] = useState<IRouteColor>(
-    "green"
+  const [selectedRouteColor, setSelectedRouteColor] = useState<ERouteColor>(
+    ERouteColor.GREEN
   );
   const [currentFitBounds, setCurrentFitBounds] = useState<[Center, Center]>();
   const [maxZoom, setMaxZoom] = useState<number>(20);
+  const [routeInfo, setRouteInfo] = useState<DataToBackend>({
+    car: {
+      marca: "",
+      modelo: "",
+      year: {
+        rendimientoLitro: 0,
+        year: 0,
+      },
+    },
+    destination: {
+      center: [0, 0],
+      placeName: "",
+    },
+    startingPoint: {
+      center: [0, 0],
+      placeName: "",
+    },
+    statistics: true,
+  });
 
   // El ID que se pasa por los params
   let { id } = useParams();
@@ -46,7 +71,7 @@ const Results: React.FC<{ location: any }> = (props) => {
       const currentRoute = props.location.state.routes[0];
       setRoutes(props.location.state.routes);
       setSelectedRoute(currentRoute);
-      setSelectedRouteColor("green");
+      setSelectedRouteColor(ERouteColor.GREEN);
       setDataLoaded(true);
       setCurrentFitBounds([
         [
@@ -63,8 +88,7 @@ const Results: React.FC<{ location: any }> = (props) => {
         ],
       ]);
       console.log(props.location.state.routes[0]);
-
-      console.log("roueinfo", props.location.state.routeInfo);
+      setRouteInfo(props.location.state.routeInfo);
     }
   }, []);
 
@@ -76,11 +100,11 @@ const Results: React.FC<{ location: any }> = (props) => {
     if (!isNaN(key)) {
       setSelectedRoute(routes[key]);
       if (key === 0) {
-        setSelectedRouteColor("green");
+        setSelectedRouteColor(ERouteColor.GREEN);
       } else if (key === routes.length - 1) {
-        setSelectedRouteColor("red");
+        setSelectedRouteColor(ERouteColor.RED);
       } else {
-        setSelectedRouteColor("blue");
+        setSelectedRouteColor(ERouteColor.BLUE);
       }
       setCurrentFitBounds([
         [
@@ -104,7 +128,6 @@ const Results: React.FC<{ location: any }> = (props) => {
    * @param l
    */
   const updateHoverStep = (l: Center) => {
-    console.log("location", l);
     setCurrentFitBounds([l, l]);
     setMaxZoom(15);
   };
@@ -154,6 +177,39 @@ const Results: React.FC<{ location: any }> = (props) => {
     });
 
     return filtered;
+  };
+
+  /**
+   * Formatea una duración para regresar ya sea minutos u horas
+   * @param d {number} Duración total del viaje
+   */
+  const formatDuration = (d: number): string => {
+    d = Number(d);
+    var h = Math.floor(d / 3600);
+    var m = Math.floor((d % 3600) / 60);
+
+    var hDisplay = h > 0 ? h + (h == 1 ? " hora, " : " horas, ") : "";
+    var mDisplay = m > 0 ? m + (m == 1 ? " minuto, " : " minutos, ") : "";
+    return hDisplay + mDisplay;
+  };
+
+  /**
+   * Formatea una distancia en metros para regresar ya sea metros o kilometros
+   * @param distance {number} Distancia en metros
+   */
+  const formatDistance = (distance: number): string => {
+    return distance > 1000
+      ? (distance / 1000).toFixed(2) + " km"
+      : distance + " metros";
+  };
+
+  /**
+   * Calcula cual será el consumo de combustible por recorrer X distancia
+   * @param distance {number} Distancia en metros
+   * @param kmL {number} kilometros que gasta por litro de combustible
+   */
+  const calculateUsoCombustible = (distance: number, kmL: number): number => {
+    return +(distance / 1000 / kmL).toFixed(2);
   };
 
   if (redirectToHome) return <Redirect to="/" />;
@@ -228,14 +284,55 @@ const Results: React.FC<{ location: any }> = (props) => {
         </Map>
       }
       rightComponent={
-        <Row justify="center">
-          <Col span={22}></Col>
+        <Row justify="center" style={{ paddingTop: "20px" }}>
           <Col span={22}>
+            <Title style={{ textAlign: "center" }} level={2}>
+              Rutas optimizadas
+            </Title>
+          </Col>
+          <Col span={11}>
+            <Statistic
+              title="Inicio"
+              value={routeInfo.startingPoint.placeName}
+            />
+          </Col>
+          <Col span={11}>
+            <Statistic
+              title="Destino"
+              value={routeInfo.destination.placeName}
+            />
+          </Col>
+
+          <Col span={22} style={{ marginTop: 20 }}>
+            <Text>
+              Auto <br />
+              <b>
+                {routeInfo.car.marca +
+                  " " +
+                  routeInfo.car.modelo +
+                  " - " +
+                  routeInfo.car.year.year +
+                  " (" +
+                  routeInfo.car.year.rendimientoLitro +
+                  " km/lt)"}
+              </b>
+            </Text>
+            <Divider />
+          </Col>
+
+          <Col span={22} style={{ marginTop: "1rem" }}>
             <Accordion
               onClick={(key) => updateSelectedRoute(+key)}
               panels={routes.map((route: any, v: number) => {
                 return {
-                  title: `Alternativa ${v + 1}`,
+                  title: `Alternativa ${v + 1}, recorre ${formatDistance(
+                    route.legs[0].distance
+                  )} en ${formatDuration(
+                    route.legs[0].duration
+                  )} usando ${calculateUsoCombustible(
+                    route.legs[0].distance,
+                    routeInfo.car.year.rendimientoLitro
+                  )} litros de combustible`,
                   content: (
                     <MapRouteItem
                       changeOnHover={(l) => updateHoverStep(l)}
