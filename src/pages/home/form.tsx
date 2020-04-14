@@ -14,7 +14,9 @@ import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
 import { MapboxSearchFeature, DataToBackend, Center } from "../../interfaces";
 import { availableCarsData } from "../../mockingData";
+
 const accessToken = process.env.REACT_APP_MAPBOX_API as string | "noApi";
+const BACKEND_API = "http://localhost:3001/";
 const { Title } = Typography;
 
 interface Option {
@@ -111,7 +113,6 @@ const HomeForm: React.FC<Props> = () => {
   const displayRender = (labels: any, selectedOptions: any) =>
     labels.map((label: any, i: any) => {
       const option = selectedOptions[i];
-      console.log("option", option);
       if (i === labels.length - 1) {
         return (
           <span key={option.value}>
@@ -145,7 +146,7 @@ const HomeForm: React.FC<Props> = () => {
           rendimientoLitro: values.carToUse[2].split(",")[1] as number,
         },
       },
-      statistics: values.statistics,
+      statistics: values.statistics ? values.statistics : false,
     };
     generarRutaBackend(data);
     setRouteInfo(data);
@@ -159,30 +160,14 @@ const HomeForm: React.FC<Props> = () => {
     // Por el momento solo se usará la API para consultar las rutas y esas son
     // las que se usarán, cuando se implemente el backend entonces en el back se
     // hará la consulta a la API y se implementará el algoritmo.
-    const routes = await tmpGetRoutesFromAPI([
-      values.startingPoint.center,
-      values.destination.center,
-    ]);
-    setRoutesResult(routes);
-  };
+    const { data } = await axios.post(`${BACKEND_API}routes/create`, values);
+    console.log("data from backend", data);
 
-  /**
-   * Función temporal para "simular" lo que haría el back al momento de regresar rutas.
-   * @param coordinates
-   */
-  const tmpGetRoutesFromAPI = async (
-    coordinates: [Center, Center]
-  ): Promise<[]> => {
-    try {
-      const { data } = await axios.get(
-        `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${encodeURIComponent(
-          coordinates.join(";")
-        )}?alternatives=true&geometries=geojson&language=es&steps=true&access_token=${accessToken}`
-      );
-      return data.routes ? data.routes : [];
-    } catch (err) {
-      return [];
-    }
+    // const routes = await tmpGetRoutesFromAPI([
+    //   values.startingPoint.center,
+    //   values.destination.center,
+    // ]);
+    // setRoutesResult(routes);
   };
 
   /**
@@ -240,7 +225,7 @@ const HomeForm: React.FC<Props> = () => {
   };
 
   /**
-   * Consultar API para traer
+   * Consultar API para traer los resultados de las direcciones
    * @param value
    */
   const handleDestinationChange = async (value: string) => {
@@ -251,7 +236,6 @@ const HomeForm: React.FC<Props> = () => {
       setDestinationsOptions(
         features.map((f) => ({ center: f.center, ...renderItem(f.placeName) }))
       );
-      console.log("features on destination", features);
     } else {
       setDestinationsOptions([]);
     }
