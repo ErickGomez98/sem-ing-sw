@@ -28,36 +28,20 @@ html {
   border: none;
 }
 
-.ant-collapse .ant-collapse-item:first-child .ant-collapse-header {
-  border: 1px solid #52c41a;
-}
-
-.ant-collapse .ant-collapse-item .ant-collapse-header {
-  border: 1px solid #1890ff;
-  font-weight: 600;
-}
-
-.ant-collapse .ant-collapse-item:last-child .ant-collapse-header {
-  border: 1px solid #ff4d4f;
-}
-
 .ant-collapse
   .ant-collapse-item:first-child.ant-collapse-item-active
   .ant-collapse-header {
-  background: rgba(82, 196, 26, 0.7);
-  color: rgba(0, 0, 0, 0.85);
+  border-left: 20px solid #52c41a;
 }
 
 .ant-collapse .ant-collapse-item.ant-collapse-item-active .ant-collapse-header {
-  background: rgba(24, 144, 255, 0.7);
-  color: rgba(0, 0, 0, 0.85);
+  border-left: 20px solid #1890ff;
 }
 
 .ant-collapse
   .ant-collapse-item:last-child.ant-collapse-item-active
   .ant-collapse-header {
-  background: rgba(255, 77, 79, 0.7);
-  color: rgba(0, 0, 0, 0.85);
+  border-left: 20px solid #ff4d4f;
 }
 
 .ant-collapse-content > .ant-collapse-content-box {
