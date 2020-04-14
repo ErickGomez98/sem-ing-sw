@@ -7,7 +7,7 @@ import { Route } from './interfaces/routes.interface';
 export class RoutesController {
   constructor(private readonly routesService: RoutesService) {}
 
-  @Post()
+  @Post('/create')
   async create(@Body() createRouteDto: CreateRouteDto) {
     await this.routesService.create(createRouteDto);
   }
