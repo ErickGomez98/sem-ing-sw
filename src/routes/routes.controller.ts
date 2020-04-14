@@ -3,17 +3,17 @@ import { CreateRouteDto } from './dto/create-route.dto';
 import { RoutesService } from './routes.service';
 import { Route } from './interfaces/routes.interface';
 
-@Controller('cats')
+@Controller('routes')
 export class RoutesController {
-  constructor(private readonly catsService: RoutesService) {}
+  constructor(private readonly routesService: RoutesService) {}
 
   @Post()
-  async create(@Body() createCatDto: CreateRouteDto) {
-    await this.catsService.create(createCatDto);
+  async create(@Body() createRouteDto: CreateRouteDto) {
+    await this.routesService.create(createRouteDto);
   }
 
   @Get('')
   async findAll(): Promise<Route[]> {
-    return this.catsService.findAll();
+    return this.routesService.findAll();
   }
 }
