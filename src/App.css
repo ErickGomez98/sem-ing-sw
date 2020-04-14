@@ -31,17 +31,18 @@ html {
 .ant-collapse
   .ant-collapse-item:first-child.ant-collapse-item-active
   .ant-collapse-header {
-  border-left: 20px solid #52c41a;
+  border-left: 20px solid rgba(82, 196, 26, 0.7);
 }
 
 .ant-collapse .ant-collapse-item.ant-collapse-item-active .ant-collapse-header {
-  border-left: 20px solid #1890ff;
+  border-left: 20px solid rgba(24, 144, 255, 0.7);
+  font-weight: 600;
 }
 
 .ant-collapse
   .ant-collapse-item:last-child.ant-collapse-item-active
   .ant-collapse-header {
-  border-left: 20px solid #ff4d4f;
+  border-left: 20px solid rgba(255, 77, 79, 0.7);
 }
 
 .ant-collapse-content > .ant-collapse-content-box {
