@@ -1,18 +1,28 @@
 import { Model } from 'mongoose';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Route, Center, MapboxRoute } from './interfaces/routes.interface';
+import {
+  RouteRequest,
+  Center,
+  MapboxRoute,
+} from './interfaces/routes.interface';
 import { CreateRouteDto, Car } from './dto/create-route.dto';
 // tslint:disable-next-line: no-var-requires
 const fetch = require('node-fetch');
 
 @Injectable()
 export class RoutesService {
-  constructor(@InjectModel('Route') private routeModel: Model<Route>) {}
+  constructor(
+    @InjectModel('RouteRequest') private routeModel: Model<RouteRequest>,
+  ) {}
 
-  async create(createRouteDto: CreateRouteDto): Promise<{}> {
-    // const createdRoute = new this.routeModel(createRouteDto);
-    // return createdRoute.save();
+  /**
+   * Crea un nuevo registro de solicitud de ruta optimizada, consulta las rutas de la
+   * api de mapbox, pasa las rutas al algoritmo de optimización, captura los registros
+   * en la base de datos, y finalmente regresa el nuevo registro capturado devuelta al front
+   * @param createRouteDto {CreateRouteDto} información que viene del front
+   */
+  async create(createRouteDto: CreateRouteDto): Promise<RouteRequest> {
     const routesFound = await this.getRoutesFromAPI([
       createRouteDto.startingPoint.center,
       createRouteDto.destination.center,
@@ -23,12 +33,14 @@ export class RoutesService {
       createRouteDto.car,
     );
 
-    console.log('rutas optimizadas', rutasOptimizadas);
+    const dataToStore = {
+      ...createRouteDto,
+      createdAt: new Date(),
+      routes: rutasOptimizadas,
+    };
 
-    // Guardar un objeto que tenga toda la info y aparte las rutas optimizadas dejando claro
-    // cual fue la mejor ruta
-
-    return new Promise(r => r({}));
+    const createdRouteRequest = new this.routeModel(dataToStore);
+    return await createdRouteRequest.save();
   }
 
   /**
@@ -71,7 +83,11 @@ export class RoutesService {
     return routes;
   }
 
-  async findAll(): Promise<Route[]> {
+  async findAll(): Promise<RouteRequest[]> {
     return this.routeModel.find().exec();
+  }
+
+  async findOne(id: string): Promise<RouteRequest> {
+    return this.routeModel.findById(id).exec();
   }
 }

@@ -1,7 +1,7 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { CreateRouteDto } from './dto/create-route.dto';
 import { RoutesService } from './routes.service';
-import { Route } from './interfaces/routes.interface';
+import { RouteRequest } from './interfaces/routes.interface';
 
 @Controller('routes')
 export class RoutesController {
@@ -9,11 +9,16 @@ export class RoutesController {
 
   @Post('/create')
   async create(@Body() createRouteDto: CreateRouteDto) {
-    await this.routesService.create(createRouteDto);
+    return await this.routesService.create(createRouteDto);
+  }
+
+  @Get('results/:id')
+  async findOne(@Param() params): Promise<RouteRequest> {
+    return this.routesService.findOne(params.id);
   }
 
   @Get('')
-  async findAll(): Promise<Route[]> {
+  async findAll(): Promise<RouteRequest[]> {
     return this.routesService.findAll();
   }
 }

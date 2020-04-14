@@ -1,9 +1,13 @@
+import { Place, Car } from './../dto/create-route.dto';
 import { Document } from 'mongoose';
 
-export interface Route extends Document {
-  readonly name: string;
-  readonly age: number;
-  readonly breed: string;
+export interface RouteRequest extends Document {
+  readonly createdAt: Date;
+  readonly startingPoint: Place;
+  readonly destination: Place;
+  readonly statistics: boolean;
+  readonly car: Car;
+  readonly routes: MapboxRoute[];
 }
 
 export type Center = [number, number];

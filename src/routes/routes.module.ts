@@ -6,7 +6,7 @@ import { RouteSchema } from './schemas/routes.schema';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Route', schema: RouteSchema }]),
+    MongooseModule.forFeature([{ name: 'RouteRequest', schema: RouteSchema }]),
   ],
   controllers: [RoutesController],
   providers: [RoutesService],
