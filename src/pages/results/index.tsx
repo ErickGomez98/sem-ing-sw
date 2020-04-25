@@ -7,10 +7,13 @@ import ReactMapboxGl, {
   Feature,
   Image,
 } from "react-mapbox-gl";
-import { Center, DataToBackend } from "../../interfaces";
+import { Center } from "../../interfaces";
 import { Row, Col, Statistic, Typography, Divider } from "antd";
 import Accordion from "../../components/Accordion";
 import MapRouteItem, { Step } from "../../components/Accordion/MapRoute";
+import axios from "axios";
+
+const BACKEND_API = "http://localhost:3001/";
 const Map = ReactMapboxGl({
   accessToken: process.env.REACT_APP_MAPBOX_API as string | "noApi",
 });
@@ -33,64 +36,41 @@ const Results: React.FC<{ location: any }> = (props) => {
   );
   const [currentFitBounds, setCurrentFitBounds] = useState<[Center, Center]>();
   const [maxZoom, setMaxZoom] = useState<number>(20);
-  const [routeInfo, setRouteInfo] = useState<DataToBackend>({
-    car: {
-      marca: "",
-      modelo: "",
-      year: {
-        rendimientoLitro: 0,
-        year: 0,
-      },
-    },
-    destination: {
-      center: [0, 0],
-      placeName: "",
-    },
-    startingPoint: {
-      center: [0, 0],
-      placeName: "",
-    },
-    statistics: true,
-  });
+  const [routeInfo, setRouteInfo] = useState<any>();
 
   // El ID que se pasa por los params
   let { id } = useParams();
 
   useEffect(() => {
-    // En base al ID, consultar el backend.
-    // setTimeout(() => {
-    //   setDataLoaded(true);
-    // }, 1500);
-
-    // Solamente en esta etapa de prototipo se deberá sacar la info
-    // desde los props, una vez implementado el back, quitar los props
-    // ya que la info se sacará del back y no de props.
-    if (!props.location.state) {
-      setRedirectToHome(true);
-    } else {
-      const currentRoute = props.location.state.routes[0];
-      setRoutes(props.location.state.routes);
-      setSelectedRoute(currentRoute);
-      setSelectedRouteColor(ERouteColor.GREEN);
-      setDataLoaded(true);
-      setCurrentFitBounds([
-        [
-          currentRoute.geometry.coordinates[0][0],
-          currentRoute.geometry.coordinates[0][1],
-        ],
-        [
-          currentRoute.geometry.coordinates[
-            currentRoute.geometry.coordinates.length - 1
-          ][0],
-          currentRoute.geometry.coordinates[
-            currentRoute.geometry.coordinates.length - 1
-          ][1],
-        ],
-      ]);
-      console.log(props.location.state.routes[0]);
-      setRouteInfo(props.location.state.routeInfo);
-    }
+    fetchResult();
   }, []);
+
+  const fetchResult = async () => {
+    const { data } = await axios.get(`${BACKEND_API}routes/results/${id}`);
+    setRouteInfo(data);
+
+    const currentRoute = data.routes[0];
+    setRoutes(data.routes);
+    setSelectedRoute(currentRoute);
+    setSelectedRouteColor(ERouteColor.GREEN);
+    setDataLoaded(true);
+    console.log(currentRoute);
+    setCurrentFitBounds([
+      [
+        currentRoute.geometry.coordinates[0][0],
+        currentRoute.geometry.coordinates[0][1],
+      ],
+      [
+        currentRoute.geometry.coordinates[
+          currentRoute.geometry.coordinates.length - 1
+        ][0],
+        currentRoute.geometry.coordinates[
+          currentRoute.geometry.coordinates.length - 1
+        ][1],
+      ],
+    ]);
+    setRouteInfo(data);
+  };
 
   /**
    * Función utilizada para mostrar la ruta seleccionada en el mapa.
@@ -213,8 +193,7 @@ const Results: React.FC<{ location: any }> = (props) => {
   };
 
   if (redirectToHome) return <Redirect to="/" />;
-
-  if (!dataLoaded) return <h1>loading</h1>;
+  if (!dataLoaded || !currentFitBounds) return <h1>loading</h1>;
 
   return (
     <Layout
