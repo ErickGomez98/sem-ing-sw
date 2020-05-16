@@ -1,11 +1,11 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import { BrowserRouter as Router, Redirect, Route } from "react-router-dom";
 //@ts-ignore
 import { AnimatedSwitch } from "react-router-transition";
 import "./App.css";
+import Home from "./pages/home";
 import Results from "./pages/results";
 import Statistics from "./pages/statistics";
-import Home from "./pages/home";
 
 function App() {
   return (

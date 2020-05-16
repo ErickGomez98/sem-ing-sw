@@ -12,7 +12,7 @@ import {
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Redirect } from "react-router-dom";
-import { MapboxSearchFeature, DataToBackend, Center } from "../../interfaces";
+import { DataToBackend, MapboxSearchFeature } from "../../interfaces";
 import { availableCarsData } from "../../mockingData";
 
 const accessToken = process.env.REACT_APP_MAPBOX_API as string | "noApi";

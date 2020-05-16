@@ -1,10 +1,10 @@
 import React from "react";
-import Layout from "../../components/Layout";
-import "./home.css";
-import HomeForm from "./form";
 import ReactMapboxGl, { MapContext } from "react-mapbox-gl";
+import Layout from "../../components/Layout";
+import HomeForm from "./form";
+import "./home.css";
 const Map = ReactMapboxGl({
-  accessToken: process.env.REACT_APP_MAPBOX_API as string | "noApi"
+  accessToken: process.env.REACT_APP_MAPBOX_API as string | "noApi",
 });
 
 const Home: React.FC<{}> = () => {
@@ -20,11 +20,11 @@ const Home: React.FC<{}> = () => {
           bearing={[-17.6]}
           containerStyle={{
             height: "100vh",
-            width: "100%"
+            width: "100%",
           }}
         >
           <MapContext.Consumer>
-            {map => {
+            {(map) => {
               function rotateCamera(timestamp: number) {
                 // clamp the rotation between 0 -360 degrees
                 // Divide timestamp by 100 to slow rotation to ~10 degrees / sec
@@ -67,7 +67,7 @@ const Home: React.FC<{}> = () => {
                       15,
                       0,
                       15.05,
-                      ["get", "height"]
+                      ["get", "height"],
                     ],
                     "fill-extrusion-base": [
                       "interpolate",
@@ -76,10 +76,10 @@ const Home: React.FC<{}> = () => {
                       15,
                       0,
                       15.05,
-                      ["get", "min_height"]
+                      ["get", "min_height"],
                     ],
-                    "fill-extrusion-opacity": 0.6
-                  }
+                    "fill-extrusion-opacity": 0.6,
+                  },
                 },
                 labelLayerId
               );

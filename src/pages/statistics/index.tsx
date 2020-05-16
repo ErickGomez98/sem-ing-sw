@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Statistic } from "antd";
 import {
-  ClockCircleOutlined,
-  EnvironmentOutlined,
-  DashboardOutlined,
-  MoreOutlined,
   CarOutlined,
+  ClockCircleOutlined,
+  DashboardOutlined,
   EllipsisOutlined,
+  EnvironmentOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
-import Layout from "../../components/Layout";
-import ReactMapboxGl, { MapContext } from "react-mapbox-gl";
+import { Card, Col, Row, Statistic } from "antd";
 import Title from "antd/lib/typography/Title";
-import { Redirect } from "react-router-dom";
 import Axios from "axios";
+import React, { useEffect, useState } from "react";
+import ReactMapboxGl, { MapContext } from "react-mapbox-gl";
+import { Redirect } from "react-router-dom";
+import Layout from "../../components/Layout";
 import { Statistics as IStatistics } from "../../interfaces";
 const BACKEND_API = "http://localhost:3001/";
 

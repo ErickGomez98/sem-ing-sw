@@ -1,17 +1,17 @@
+import { Col, Divider, Row, Statistic, Typography } from "antd";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
-import Layout from "../../components/Layout";
-import { useParams, Redirect } from "react-router-dom";
 import ReactMapboxGl, {
-  GeoJSONLayer,
-  Layer,
   Feature,
+  GeoJSONLayer,
   Image,
+  Layer,
 } from "react-mapbox-gl";
-import { Center } from "../../interfaces";
-import { Row, Col, Statistic, Typography, Divider } from "antd";
+import { Redirect, useParams } from "react-router-dom";
 import Accordion from "../../components/Accordion";
 import MapRouteItem, { Step } from "../../components/Accordion/MapRoute";
-import axios from "axios";
+import Layout from "../../components/Layout";
+import { Center } from "../../interfaces";
 
 const BACKEND_API = "http://localhost:3001/";
 const Map = ReactMapboxGl({
