@@ -282,7 +282,7 @@ const Results: React.FC<{ location: any }> = (props) => {
             />
           </Col>
 
-          <Col span={22} style={{ marginTop: 20 }}>
+          <Col span={11} style={{ marginTop: 20 }}>
             <Text>
               Auto <br />
               <b>
@@ -296,10 +296,31 @@ const Results: React.FC<{ location: any }> = (props) => {
                   " km/lt)"}
               </b>
             </Text>
-            <Divider />
+          </Col>
+          <Col span={11} style={{ marginTop: 20 }}>
+            <Text>
+              Ver alternativa en <br />
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&origin=${
+                  selectedRoute.geometry.coordinates[0][1]
+                },${selectedRoute.geometry.coordinates[0][0]}&destination=${
+                  selectedRoute.geometry.coordinates[
+                    selectedRoute.geometry.coordinates.length - 1
+                  ][1]
+                },${
+                  selectedRoute.geometry.coordinates[
+                    selectedRoute.geometry.coordinates.length - 1
+                  ][0]
+                }`}
+                target="_blank"
+              >
+                Google Maps
+              </a>
+            </Text>
           </Col>
 
           <Col span={22} style={{ marginTop: "1rem" }}>
+            <Divider />
             <Accordion
               onClick={(key) => updateSelectedRoute(+key)}
               panels={routes.map((route: any, v: number) => {
