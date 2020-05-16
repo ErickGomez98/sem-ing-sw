@@ -99,7 +99,7 @@ const HomeForm: React.FC<Props> = () => {
   const [startingPoint, setStartingPoint] = useState<[number, number]>([0, 0]);
   const [destination, setDestination] = useState<[number, number]>([0, 0]);
   const [routesResult, setRoutesResult] = useState<any>(false);
-  const [routeInfo, setRouteInfo] = useState<DataToBackend | null>(null);
+  const [routeId, setRouteId] = useState<string | null>(null);
 
   useEffect(() => {
     setCascaderOptions(generateCarsData());
@@ -149,7 +149,6 @@ const HomeForm: React.FC<Props> = () => {
       statistics: values.statistics ? values.statistics : false,
     };
     generarRutaBackend(data);
-    setRouteInfo(data);
   };
 
   /**
@@ -167,7 +166,8 @@ const HomeForm: React.FC<Props> = () => {
     //   values.startingPoint.center,
     //   values.destination.center,
     // ]);
-    // setRoutesResult(routes);
+    setRoutesResult(data.routes);
+    setRouteId(data._id);
   };
 
   /**
@@ -266,12 +266,11 @@ const HomeForm: React.FC<Props> = () => {
     };
   };
 
-  if (routesResult)
+  if (routesResult && routeId)
     return (
       <Redirect
         to={{
-          pathname: "/results/1",
-          state: { routes: routesResult, routeInfo },
+          pathname: `/results/${routeId}`,
         }}
       />
     );
