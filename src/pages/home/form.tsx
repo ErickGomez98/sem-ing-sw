@@ -280,7 +280,7 @@ const HomeForm: React.FC<Props> = () => {
       <Row className="homeForm" justify="space-around" align="middle">
         <Col span={12}>
           <div style={{ textAlign: "center" }}>
-            <Title>MI APLICACIÓN</Title>
+            <Title>RUTAS OPTIMIZADAS</Title>
             <p className="secondaryText">
               Busca rutas optimizando el consumo de combustible
             </p>
