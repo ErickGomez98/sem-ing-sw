@@ -141,8 +141,8 @@ export class RoutesService {
       averageCarConsumption,
       averageRideConsumption,
       mostUsedCar,
-      averageDistance, // meters
-      averageDuration, // seconds
+      averageDistance: averageDistance / 1000, // km
+      averageDuration: averageDuration / 60, // minutes
     };
   }
 }
