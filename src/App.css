@@ -55,3 +55,9 @@ html {
   padding: 30px;
   height: 100vh;
 }
+
+.menu-fixed {
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+}

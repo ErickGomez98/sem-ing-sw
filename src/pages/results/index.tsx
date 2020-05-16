@@ -267,7 +267,7 @@ const Results: React.FC<{ location: any }> = (props) => {
         </Map>
       }
       rightComponent={
-        <Row justify="center" style={{ paddingTop: "20px" }}>
+        <Row justify="center" style={{ paddingTop: "20px", marginTop: "50px" }}>
           <Col span={22}>
             <Title style={{ textAlign: "center" }} level={2}>
               Rutas optimizadas
