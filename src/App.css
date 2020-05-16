@@ -49,3 +49,9 @@ html {
   padding-top: 30px !important;
   padding-bottom: 0 !important;
 }
+
+.site-statistic-demo-card {
+  background: #ececec;
+  padding: 30px;
+  height: 100vh;
+}

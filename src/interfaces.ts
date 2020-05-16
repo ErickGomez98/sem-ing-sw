@@ -33,3 +33,19 @@ export interface DataToBackend {
 }
 
 export type Center = [number, number];
+
+export interface Statistics {
+  totalRoutes: number;
+  averageCarConsumption: number;
+  averageRideConsumption: number;
+  mostUsedCar: {
+    car: {
+      marca: string;
+      modelo: string;
+      year: { year: number; rendimientoLitro: number };
+    };
+    occurrences: number;
+  };
+  averageDistance: number;
+  averageDuration: number;
+}

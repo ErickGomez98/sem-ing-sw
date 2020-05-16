@@ -46,30 +46,34 @@ const Results: React.FC<{ location: any }> = (props) => {
   }, []);
 
   const fetchResult = async () => {
-    const { data } = await axios.get(`${BACKEND_API}routes/results/${id}`);
-    setRouteInfo(data);
+    try {
+      const { data } = await axios.get(`${BACKEND_API}routes/results/${id}`);
+      setRouteInfo(data);
 
-    const currentRoute = data.routes[0];
-    setRoutes(data.routes);
-    setSelectedRoute(currentRoute);
-    setSelectedRouteColor(ERouteColor.GREEN);
-    setDataLoaded(true);
-    console.log(currentRoute);
-    setCurrentFitBounds([
-      [
-        currentRoute.geometry.coordinates[0][0],
-        currentRoute.geometry.coordinates[0][1],
-      ],
-      [
-        currentRoute.geometry.coordinates[
-          currentRoute.geometry.coordinates.length - 1
-        ][0],
-        currentRoute.geometry.coordinates[
-          currentRoute.geometry.coordinates.length - 1
-        ][1],
-      ],
-    ]);
-    setRouteInfo(data);
+      const currentRoute = data.routes[0];
+      setRoutes(data.routes);
+      setSelectedRoute(currentRoute);
+      setSelectedRouteColor(ERouteColor.GREEN);
+      setDataLoaded(true);
+      console.log(currentRoute);
+      setCurrentFitBounds([
+        [
+          currentRoute.geometry.coordinates[0][0],
+          currentRoute.geometry.coordinates[0][1],
+        ],
+        [
+          currentRoute.geometry.coordinates[
+            currentRoute.geometry.coordinates.length - 1
+          ][0],
+          currentRoute.geometry.coordinates[
+            currentRoute.geometry.coordinates.length - 1
+          ][1],
+        ],
+      ]);
+      setRouteInfo(data);
+    } catch (er) {
+      setRedirectToHome(true);
+    }
   };
 
   /**
@@ -313,6 +317,7 @@ const Results: React.FC<{ location: any }> = (props) => {
                   ][0]
                 }`}
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Google Maps
               </a>
