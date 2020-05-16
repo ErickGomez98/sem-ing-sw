@@ -73,14 +73,12 @@ export class RoutesService {
    * @param r {MapboxRoute}
    */
   procesamientoAlgoritmo(routes: MapboxRoute[], car: Car) {
-    for (let i = 0; i < routes.length; i++) {
-      if (i === 0) {
-        routes[i].bestOption = true;
-      } else {
-        routes[i].bestOption = false;
-      }
-    }
-    return routes;
+    const sortedRoutes = routes.sort(
+      (a, b) =>
+        +(a.distance / 1000 / car.year.rendimientoLitro).toFixed(2) -
+        +(b.distance / 1000 / car.year.rendimientoLitro).toFixed(2),
+    );
+    return sortedRoutes;
   }
 
   async findAll(): Promise<RouteRequest[]> {
