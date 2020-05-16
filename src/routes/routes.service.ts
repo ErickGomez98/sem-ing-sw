@@ -7,6 +7,7 @@ import {
   MapboxRoute,
 } from './interfaces/routes.interface';
 import { CreateRouteDto, Car } from './dto/create-route.dto';
+import Statistics from './interfaces/statistics.interface';
 // tslint:disable-next-line: no-var-requires
 const fetch = require('node-fetch');
 
@@ -82,10 +83,66 @@ export class RoutesService {
   }
 
   async findAll(): Promise<RouteRequest[]> {
-    return this.routeModel.find().exec();
+    return await this.routeModel.find().exec();
   }
 
   async findOne(id: string): Promise<RouteRequest> {
-    return this.routeModel.findById(id).exec();
+    return await this.routeModel.findById(id).exec();
+  }
+
+  async statistics(): Promise<Statistics> {
+    const routes = await this.routeModel.find().exec();
+    const filteredRoutes = routes.filter(r => r.statistics);
+    const totalRoutes = filteredRoutes.length;
+    const averageCarConsumption =
+      filteredRoutes.reduce((a, b) => a + b.car.year.rendimientoLitro, 0) /
+      totalRoutes;
+    const totalConsumptions = [];
+    filteredRoutes.forEach(r =>
+      r.routes.forEach(rr =>
+        totalConsumptions.push(
+          +(rr.distance / 1000 / r.car.year.rendimientoLitro).toFixed(2),
+        ),
+      ),
+    );
+    const averageRideConsumption =
+      totalConsumptions.reduce((a, b) => a + b, 0) / totalRoutes;
+
+    const isSameCar = (carA: Car, carB: Car) =>
+      carA.marca === carB.marca && carA.modelo === carB.modelo;
+    const cars: Array<{ car: Car; occurrences: number }> = [];
+    filteredRoutes.forEach(r => {
+      const found = cars.findIndex(c => isSameCar(r.car, c.car));
+      if (found === -1) {
+        cars.push({ car: r.car, occurrences: 1 });
+      } else {
+        cars[found] = {
+          ...cars[found],
+          occurrences: cars[found].occurrences + 1,
+        };
+      }
+    });
+    const mostUsedCar = cars.sort((a, b) => b.occurrences - a.occurrences)[0];
+    const distances: number[] = [];
+    filteredRoutes.forEach(r =>
+      r.routes.forEach(a => distances.push(a.distance)),
+    );
+
+    const averageDistance = distances.reduce((a, b) => a + b) / totalRoutes;
+
+    const durations: number[] = [];
+    filteredRoutes.forEach(r =>
+      r.routes.forEach(a => durations.push(a.duration)),
+    );
+    const averageDuration = durations.reduce((a, b) => a + b) / totalRoutes;
+
+    return {
+      totalRoutes,
+      averageCarConsumption,
+      averageRideConsumption,
+      mostUsedCar,
+      averageDistance, // meters
+      averageDuration, // seconds
+    };
   }
 }
